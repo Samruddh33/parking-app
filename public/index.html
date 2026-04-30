@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Parking System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0;
+      padding: 0;
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      color: black;
+      padding: 20px;
+      margin: 15px;
+      border-radius: 15px;
+      width: 250px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    #slotsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 20px;
+}
+
+.slot {
+  width: 60px;
+  height: 60px;
+  margin: 10px;
+  line-height: 60px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.free {
+  background: green;
+}
+
+.occupied {
+  background: red;
+}
+
+#stats {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+    input {
+      width: 90%;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #5a67d8;
+    }
+
+    #output {
+      background: black;
+      color: #00ffcc;
+      padding: 15px;
+      margin: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+<h1>🚗 Smart Parking Dashboard</h1>
+
+<div id="stats"></div>
+<div id="slotsContainer"></div>
+
+<div class="container">
+
+  <div class="card">
+    <h3>Initialize</h3>
+    <input id="slots" placeholder="Slots" />
+    <button onclick="init()">Init</button>
+  </div>
+
+  <div class="card">
+    <h3>Entry</h3>
+    <input id="entry" placeholder="Vehicle No" />
+    <button onclick="entry()">Enter</button>
+  </div>
+
+  <div class="card">
+    <h3>Exit</h3>
+    <input id="exit" placeholder="Vehicle No" />
+    <button onclick="exitVehicle()">Exit</button>
+  </div>
+
+  <div class="card">
+    <h3>Refresh</h3>
+    <button onclick="status()">Load Status</button>
+  </div>
+
+</div>
+
+<pre id="output"></pre>
+
+<script>
+const base = "http://localhost:3000/api";
+
+async function init() {
+  const slots = document.getElementById("slots").value;
+  const res = await fetch(base + "/init", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ totalSlots: Number(slots) })
+  });
+  document.getElementById("output").innerText = await res.text();
+}
+
+async function entry() {
+  const plate = document.getElementById("entry").value;
+  const res = await fetch(base + "/entry", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ numberPlate: plate })
+  });
+  document.getElementById("output").innerText = JSON.stringify(await res.json(), null, 2);
+}
+
+async function exitVehicle() {
+  const plate = document.getElementById("exit").value;
+  const res = await fetch(base + "/exit/" + plate, { method: "POST" });
+  document.getElementById("output").innerText = JSON.stringify(await res.json(), null, 2);
+}
+
+async function status() {
+  const res = await fetch(base + "/status");
+  document.getElementById("output").innerText = JSON.stringify(await res.json(), null, 2);
+}
+</script>
+
+</body>
+</html>
